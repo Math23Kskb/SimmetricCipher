@@ -67,6 +67,7 @@ public class Server {
                                     break;
                                 }
 
+                                System.out.println("Cliente 1 -> Cliente 2: " + mensagem);
                                 saida2.println(mensagem);
                             }
 
@@ -86,6 +87,7 @@ public class Server {
                                     break;
                                 }
 
+                                System.out.println("Cliente 2 -> Cliente 1: " + mensagem);
                                 saida1.println(mensagem);
                             }
 

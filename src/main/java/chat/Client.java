@@ -39,42 +39,71 @@ public class Client {
                 System.out.println("\nChat iniciado.");
                 System.out.println("Digite /sair para desconectar.");
 
-                while (true) {
+                Thread threadRecebimento = new Thread(() -> {
 
-                    System.out.print("Você> ");
-                    String mensagem = scanner.nextLine();
+                    try {
+                        String mensagemCriptografada;
 
-                    if (mensagem.equalsIgnoreCase("/sair")) {
-                        saida.println("/sair");
-                        System.out.println("Desconectando...");
-                        break;
+                        while ((mensagemCriptografada = entrada.readLine()) != null) {
+
+                            if (mensagemCriptografada.equalsIgnoreCase("/sair")) {
+                                System.out.println("\nOutro cliente desconectou.");
+                                socket.close();
+                                break;
+                            }
+
+                            String mensagem =
+                                    cipher.decrypt(mensagemCriptografada);
+
+                            System.out.println("\nOutro cliente> " + mensagem);
+                            System.out.print("Você> ");
+                        }
+
+                    } catch (IOException e) {
+                        if (!socket.isClosed()) {
+                            System.out.println("\nConexão encerrada.");
+                        }
                     }
+                });
 
-                    String mensagemCriptografada =
-                            cipher.encrypt(mensagem);
+                Thread threadEnvio = new Thread(() -> {
 
-                    saida.println(mensagemCriptografada);
+                    while (true) {
 
-                    String respostaCriptografada = entrada.readLine();
+                        System.out.print("Você> ");
+                        String mensagem = scanner.nextLine();
 
-                    if (respostaCriptografada == null) {
-                        System.out.println("Servidor desconectado.");
-                        break;
+                        if (mensagem.equalsIgnoreCase("/sair")) {
+                            saida.println("/sair");
+
+                            try {
+                                socket.close();
+                            } catch (IOException e) {
+                                System.out.println("Erro ao fechar conexão.");
+                            }
+
+                            break;
+                        }
+
+                        String mensagemCriptografada =
+                                cipher.encrypt(mensagem);
+
+                        saida.println(mensagemCriptografada);
                     }
+                });
 
-                    if (respostaCriptografada.equalsIgnoreCase("/sair")) {
-                        System.out.println("Outro cliente desconectou.");
-                        break;
-                    }
+                threadRecebimento.start();
+                threadEnvio.start();
 
-                    String resposta =
-                            cipher.decrypt(respostaCriptografada);
-
-                    System.out.println("Outro cliente> " + resposta);
-                }
+                threadEnvio.join();
+                threadRecebimento.join();
 
             } catch (IOException e) {
                 System.out.println("Erro de conexão: " + e.getMessage());
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Cliente interrompido.");
 
             } catch (NumberFormatException e) {
                 System.out.println("Número da porta inválido.");
@@ -143,10 +172,6 @@ public class Client {
                     }
 
                     System.out.println("Selecionado: Playfair");
-
-                    // Quando implementar:
-                    // return new PlayfairCipher(chavePlayfair);
-
                     System.out.println(
                             "A cifra Playfair ainda não foi implementada."
                     );
