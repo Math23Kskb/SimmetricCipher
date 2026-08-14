@@ -1,3 +1,5 @@
+package chat.cipher;
+
 public class MonoCipher implements Cipher{
     private final String key;
 

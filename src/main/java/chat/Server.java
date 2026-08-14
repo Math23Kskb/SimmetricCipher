@@ -1,131 +1,115 @@
 package chat;
 
-import chat.cipher.Cipher;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Server {
 
+    private static final int PORT = 5000;
+
     public static void main(String[] args) {
-        int port = 5000;
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
-            System.out.println("Servidor escutando na porta " + port + "...");
+            System.out.println("Servidor escutando na porta " + PORT + "...");
 
-            try (Socket clientSocket = serverSocket.accept();
-                 BufferedReader in = new BufferedReader(
-                         new InputStreamReader(clientSocket.getInputStream()));
-                 PrintWriter out = new PrintWriter(
-                         clientSocket.getOutputStream(), true);
-                 Scanner scanner = new Scanner(System.in)) {
+            try (Socket cliente1 = serverSocket.accept()) {
 
                 System.out.println(
-                        "Cliente conectado: "
-                                + clientSocket.getInetAddress().getHostAddress()
+                        "Cliente 1 conectado: "
+                                + cliente1.getInetAddress().getHostAddress()
                                 + ":"
-                                + clientSocket.getPort()
+                                + cliente1.getPort()
                 );
 
-                Cipher cipher = selectCipher(scanner);
+                try (Socket cliente2 = serverSocket.accept()) {
 
-                System.out.println("\nChat iniciado.");
+                    System.out.println(
+                            "Cliente 2 conectado: "
+                                    + cliente2.getInetAddress().getHostAddress()
+                                    + ":"
+                                    + cliente2.getPort()
+                    );
 
-                while (true) {
-                    String clientMessage = in.readLine();
+                    BufferedReader entrada1 = new BufferedReader(
+                            new InputStreamReader(cliente1.getInputStream())
+                    );
 
-                    if (clientMessage == null) {
-                        System.out.println("Cliente desconectado.");
-                        break;
-                    }
+                    PrintWriter saida1 = new PrintWriter(
+                            cliente1.getOutputStream(),
+                            true
+                    );
 
-                    if (clientMessage.equalsIgnoreCase("/sair")) {
-                        System.out.println("Cliente encerrou o chat.");
-                        break;
-                    }
+                    BufferedReader entrada2 = new BufferedReader(
+                            new InputStreamReader(cliente2.getInputStream())
+                    );
 
-                    String decryptedMessage = cipher.decrypt(clientMessage);
+                    PrintWriter saida2 = new PrintWriter(
+                            cliente2.getOutputStream(),
+                            true
+                    );
 
-                    System.out.println("Cliente: " + decryptedMessage);
+                    System.out.println("Os dois clientes estão conectados.");
+                    System.out.println("Chat iniciado.");
 
-                    System.out.print("Servidor> ");
-                    String response = scanner.nextLine();
+                    Thread cliente1ParaCliente2 = new Thread(() -> {
+                        try {
+                            String mensagem;
 
-                    if (response.equalsIgnoreCase("/sair")) {
-                        out.println("/sair");
-                        break;
-                    }
+                            while ((mensagem = entrada1.readLine()) != null) {
 
-                    String encryptedResponse = cipher.encrypt(response);
+                                if (mensagem.equalsIgnoreCase("/sair")) {
+                                    saida2.println("/sair");
+                                    break;
+                                }
 
-                    out.println(encryptedResponse);
+                                saida2.println(mensagem);
+                            }
+
+                        } catch (IOException e) {
+                            System.out.println("Cliente 1 desconectado.");
+                        }
+                    });
+
+                    Thread cliente2ParaCliente1 = new Thread(() -> {
+                        try {
+                            String mensagem;
+
+                            while ((mensagem = entrada2.readLine()) != null) {
+
+                                if (mensagem.equalsIgnoreCase("/sair")) {
+                                    saida1.println("/sair");
+                                    break;
+                                }
+
+                                saida1.println(mensagem);
+                            }
+
+                        } catch (IOException e) {
+                            System.out.println("Cliente 2 desconectado.");
+                        }
+                    });
+
+                    cliente1ParaCliente2.start();
+                    cliente2ParaCliente1.start();
+
+                    cliente1ParaCliente2.join();
+                    cliente2ParaCliente1.join();
+
+                    System.out.println("Chat encerrado.");
                 }
             }
 
         } catch (IOException e) {
-            System.out.println("Server error: " + e.getMessage());
-        }
-    }
+            System.out.println("Erro no servidor: " + e.getMessage());
 
-    private static Cipher selectCipher(Scanner scanner) {
-        while (true) {
-            System.out.println("\n=== Select Cipher ===");
-            System.out.println("1 - NoCipher");
-            System.out.println("2 - Caesar");
-            System.out.println("3 - Monoalphabetic");
-            System.out.println("4 - Playfair");
-            System.out.println("5 - Vigenere");
-            System.out.println("/sair - Sair");
-            System.out.print("Option: ");
-
-            String option = scanner.nextLine();
-
-            switch (option) {
-                case "1":
-                    System.out.println("Selected: NoCipher");
-                    return new NoCipher();
-
-                case "2":
-                    System.out.print("Enter Caesar key: ");
-                    int shift = Integer.parseInt(scanner.nextLine());
-
-                    System.out.println("Selected: Caesar");
-                    return new CaesarCipher(shift);
-
-                case "3":
-                    System.out.print("Enter Monoalphabetic key: ");
-                    String monoKey = scanner.nextLine();
-
-                    System.out.println("Selected: Monoalphabetic");
-                    return new MonoalphabeticCipher(monoKey);
-
-                case "4":
-                    System.out.print("Enter Playfair key: ");
-                    String playfairKey = scanner.nextLine();
-
-                    System.out.println("Selected: Playfair");
-                    return new PlayfairCipher(playfairKey);
-
-                case "5":
-                    System.out.print("Enter Vigenere key: ");
-                    String vigenereKey = scanner.nextLine();
-
-                    System.out.println("Selected: Vigenere");
-                    return new VigenereCipher(vigenereKey);
-
-                case "0":
-                    System.out.println("Exiting...");
-                    return null;
-
-                default:
-                    System.out.println("Invalid option.");
-            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println("Servidor interrompido.");
         }
     }
 }

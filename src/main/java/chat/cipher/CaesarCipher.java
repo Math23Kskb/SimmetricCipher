@@ -1,3 +1,5 @@
+package chat.cipher;
+
 public class CaesarCipher implements Cipher {
     private final int key;
 
