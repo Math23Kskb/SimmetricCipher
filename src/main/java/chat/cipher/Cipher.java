@@ -1,6 +1,5 @@
-package chat.cipher;
+interface Cipher{
+    public String encrypt(String text);
+    public String decrypt(String text);
 
-public interface Cipher {
-    String encrypt(String text);
-    String decrypt(String text);
 }
