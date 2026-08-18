@@ -1,5 +1,3 @@
-package chat.cipher;
-
 public class MonoCipher implements Cipher{
     private final String key;
 
@@ -13,27 +11,50 @@ public class MonoCipher implements Cipher{
     }
 
     private char getChar(int index){
-        return key.toCharArray()[index];
+        return key.charAt(index);
     }
 
-
+    @Override
     public String encrypt(String text){
+        text = text.toUpperCase();
         StringBuilder encryptedText = new StringBuilder();
 
-        for (char character : text.toCharArray()){
-            char encryptedChar = this.getChar(character - 'A');
-            encryptedText.append(encryptedChar);
+        for (int i = 0; i < text.length(); i++){
+            if(text.charAt(i) >= 'A' && text.charAt(i) <= 'Z'){
+                char encryptedChar = this.getChar(text.charAt(i) - 'A');
+                encryptedText.append(encryptedChar);
+
+
+            }
+            else{
+                encryptedText.append(text.charAt(i));
+
+            }
+
         }
 
         return encryptedText.toString();
     }
     
+
     public String decrypt(String text){
+        text = text.toUpperCase();
         StringBuilder decryptedText = new StringBuilder();
 
-        for (char character : text.toCharArray()){
-            char decryptedChar = (char)(this.getIndexOfChar(character) + 'A');
-            decryptedText.append(decryptedChar);
+        for (int i = 0; i < text.length(); i++){
+
+            if(text.charAt(i) >= 'A' && text.charAt(i) <= 'Z'){
+                char decryptedChar = (char)(this.getIndexOfChar(text.charAt(i)) + 'A');
+                decryptedText.append(decryptedChar);
+
+            }
+            else{
+
+                decryptedText.append(text.charAt(i));
+
+            }
+
+
         }
 
         return decryptedText.toString();
