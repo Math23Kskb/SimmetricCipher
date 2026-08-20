@@ -1,7 +1,10 @@
 public class MonoCipher implements Cipher{
     private final String key;
+    private ProcessText textPocessor = new ProcessText();
 
     public MonoCipher(String sKey){
+        sKey = textPocessor.removeAccent(sKey.toUpperCase());
+        textPocessor.checkMonoKey(sKey);
         key = sKey;
     }
 

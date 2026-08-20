@@ -1,29 +1,37 @@
 public class VigenereCipher implements Cipher {
     private final String key;
+    private ProcessText textPocessor = new ProcessText();
 
     public VigenereCipher(String skey){
+        skey = textPocessor.removeAccent(skey.toUpperCase());
+        textPocessor.checkVigenere(skey);
         key = skey;
     }
 
     @Override
     public String encrypt(String text){
-        text = text.toUpperCase();
+        int indexOfKey = 0;
         StringBuilder encryptedText = new StringBuilder();
 
+        text = text.toUpperCase();
+        text = textPocessor.removeAccent(text);
+
         for (int i = 0; i < text.length(); i++){
-            if(text.charAt(i) >= 'A' && text.charAt(i) <= 'Z'){
-                char charText = text.charAt(i);
-                char charKey = key.charAt(i % key.length());
-                int sumOfChars = (charText + charKey) % 26;
-
-                char encryptedChar = (char)(sumOfChars + 'A');
-                encryptedText.append(encryptedChar);
-
-            }
-            else{
+            if(text.charAt(i) < 'A' || text.charAt(i) > 'Z'){
                 encryptedText.append(text.charAt(i));
-
+                continue;
             }
+
+            char charInText = text.charAt(i);
+            char charInKey = key.charAt(indexOfKey);
+            indexOfKey++;
+            indexOfKey %= key.length();
+            int sumOfChars = (charInText + charInKey) % 26;
+            char encryptedChar = (char)(sumOfChars + 'A');
+
+            encryptedText.append(encryptedChar);
+
+
 
 
         }
@@ -33,26 +41,28 @@ public class VigenereCipher implements Cipher {
 
     @Override
     public String decrypt(String text){
-        text = text.toUpperCase();
+        int indexOfKey = 0;
         StringBuilder decryptedText = new StringBuilder();
+
+        text = text.toUpperCase();
+        text = textPocessor.removeAccent(text);
 
         for (int i = 0; i < text.length(); i++){
 
-            if(text.charAt(i) >= 'A' && text.charAt(i) <= 'Z'){
-                char charText = text.charAt(i);
-                char charKey = key.charAt(i % key.length());
-                int sumOfChars = (charText - charKey + 26) % 26;
-
-                char decryptedChar = (char)(sumOfChars + 'A');
-                decryptedText.append(decryptedChar);
-
-
-            }
-            else{
+            if(text.charAt(i) < 'A' || text.charAt(i) > 'Z'){
                 decryptedText.append(text.charAt(i));
-
+                continue;
             }
 
+            char charInText = text.charAt(i);
+            char charInKey = key.charAt(indexOfKey);
+            indexOfKey++;
+            indexOfKey %= key.length();
+            int sumOfChars = (charInText - charInKey + 26) % 26;
+            char decryptedChar = (char)(sumOfChars + 'A');
+
+            decryptedText.append(decryptedChar);
+           
         }
 
         return decryptedText.toString();

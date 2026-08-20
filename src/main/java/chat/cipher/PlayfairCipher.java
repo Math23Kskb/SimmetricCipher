@@ -1,10 +1,11 @@
-import java.util.regex.Pattern;
-
 public class PlayfairCipher implements Cipher {
     private final String key;
+    private ProcessText textProcessor = new ProcessText();
     private final char[][] matrix = new char[5][5];
 
     public PlayfairCipher(String sKey){
+        sKey = textProcessor.removeAccent(sKey.toUpperCase());
+        textProcessor.checkPlayfair(sKey);
         key = sKey;
         makeMatrix();
     }
@@ -21,58 +22,16 @@ public class PlayfairCipher implements Cipher {
         return alphabetString.toString();
     }
 
-    private String removeDuplicates(String text){
-        boolean[] isEqual = new boolean[text.length()];
-        StringBuilder newText = new StringBuilder();
-        for(int i = 0; i < text.length() - 1; i++){
-            for(int j = i + 1; j < text.length(); j++){
-                if(text.charAt(i) == text.charAt(j)){
-                    isEqual[j] = true;
-                }
-
-            }
-            if(!isEqual[i]){
-                newText.append(text.charAt(i));
-            }
-        }
-
-        return newText.toString();
-    }
-
-    private String removeLetters(String text1, String text2) {
-        if (text1 == null || text2 == null || text2.isEmpty()) {
-            return text1;
-        }
-
-        String pattern = "[" + Pattern.quote(text2) + "]";
-        return text1.replaceAll(pattern, "");
-    }
-
-    private String turnJIntoI(String text){
-        StringBuilder newText = new StringBuilder();
-        for(int i = 0; i < text.length(); i++){
-            if(text.charAt(i) == 'J'){
-                newText.append('I');
-            }
-            else{
-                newText.append(text.charAt(i));
-            }
-        }
-
-        return newText.toString();
-    }
-
     private void makeMatrix(){
-        String newKey = turnJIntoI(key);
-        newKey = removeDuplicates(newKey);
-        String finalText = newKey + removeLetters(makeAlphabet(), newKey);
+        String newKey = textProcessor.turnJIntoI(key);
+        newKey = textProcessor.removeDuplicates(newKey);
+        String finalText = newKey + textProcessor.removeLetters(makeAlphabet(), newKey);
         char[] finalTextArray = finalText.toCharArray();
         for(int i = 0; i < finalTextArray.length; i++){
             matrix[i/5][i % 5] = finalTextArray[i];
         }
 
     }
-
 
     private String makeDigraphs(String text){
         for(int i = 0; i < text.length(); i++){
@@ -108,24 +67,10 @@ public class PlayfairCipher implements Cipher {
         return indexAtMatrix; 
     }
 
-
     private char getCharAtMatrix(int line, int column){
 
         return matrix[line][column];
 
-    }
-
-    private String processText(String text){
-        StringBuilder newText = new StringBuilder();
-        for(int i = 0; i < text.length(); i++){
-            if(text.charAt(i) < 'A' || text.charAt(i) > 'Z'){
-                continue;
-            }
-            newText.append(text.charAt(i));
-
-        }
-
-        return newText.toString();
     }
 
     private String matrixString(){
@@ -144,33 +89,19 @@ public class PlayfairCipher implements Cipher {
 
     }
 
-    private String removeX(String text){
-        StringBuilder newText = new StringBuilder();
-
-        for(int i = 0; i < text.length(); i++){
-
-
-            if((text.charAt(i) == 'X') && (i < text.length() - 1) && (text.charAt(i - 1) == text.charAt(i + 1))){
-                continue;
-
-            }
-            newText.append(text.charAt(i));
-
-        }
-        return newText.toString();
-
-    }
     //--------------Métodos principais----------------
 
     @Override
     public String encrypt(String text){
 
+        StringBuilder encryptedText = new StringBuilder();
+
         text = text.toUpperCase();
-        text = processText(text);
-        text = turnJIntoI(text);
+        text = textProcessor.removeAccent(text);
+        text = textProcessor.removeNonLetters(text);
+        text = textProcessor.turnJIntoI(text);
         text = makeDigraphs(text);
 
-        StringBuilder encryptedText = new StringBuilder();
 
         for(int i = 0; i < text.length() - 1; i+=2){
             char encryptedChar0;
@@ -186,14 +117,14 @@ public class PlayfairCipher implements Cipher {
             }
 
             else if(index0[0] == index1[0]){
-                 encryptedChar0 = getCharAtMatrix(index0[0], (index1[1] + 1) % 5);
-                 encryptedChar1 = getCharAtMatrix(index1[0], (index0[1] + 1) % 5);
+                 encryptedChar0 = getCharAtMatrix(index0[0], (index0[1] + 1) % 5);
+                 encryptedChar1 = getCharAtMatrix(index1[0], (index1[1] + 1) % 5);
 
 
             }
-            else if(index0[0] == index1[0]){
-                 encryptedChar0 = getCharAtMatrix((index0[0] + 1) % 5, index1[1]);
-                 encryptedChar1 = getCharAtMatrix((index1[0] + 1) % 5, index0[1]);
+            else if(index0[1] == index1[1]){
+                 encryptedChar0 = getCharAtMatrix((index0[0] + 1) % 5, index0[1]);
+                 encryptedChar1 = getCharAtMatrix((index1[0] + 1) % 5, index1[1]);
 
             }
             else{
@@ -214,11 +145,6 @@ public class PlayfairCipher implements Cipher {
 
     @Override
     public String decrypt(String text){
-        text = text.toUpperCase();
-        text = turnJIntoI(text);
-        text = processText(text);
-        text = makeDigraphs(text);
-
         StringBuilder decryptedText = new StringBuilder();
 
         for(int i = 0; i < text.length() - 1; i+=2){
@@ -235,14 +161,14 @@ public class PlayfairCipher implements Cipher {
             }
 
             else if(index0[0] == index1[0]){
-                 decryptedChar0 = getCharAtMatrix(index0[0], (index1[1] + 4) % 5);
-                 decryptedChar1 = getCharAtMatrix(index1[0], (index0[1] + 4) % 5);
+                 decryptedChar0 = getCharAtMatrix(index0[0], (index0[1] + 4) % 5);
+                 decryptedChar1 = getCharAtMatrix(index1[0], (index1[1] + 4) % 5);
 
 
             }
-            else if(index0[0] == index1[0]){
-                 decryptedChar0 = getCharAtMatrix((index0[0] + 4) % 5, index1[1]);
-                 decryptedChar1 = getCharAtMatrix((index1[0] + 4) % 5, index0[1]);
+            else if(index0[1] == index1[1]){
+                 decryptedChar0 = getCharAtMatrix((index0[0] + 4) % 5, index0[1]);
+                 decryptedChar1 = getCharAtMatrix((index1[0] + 4) % 5, index1[1]);
 
             }
             else{
@@ -255,8 +181,6 @@ public class PlayfairCipher implements Cipher {
             decryptedText.append(digraph);
 
         }
-
-
 
         return decryptedText.toString();
 
