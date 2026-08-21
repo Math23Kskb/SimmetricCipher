@@ -1,3 +1,4 @@
+
 package chat.cipher;
 
 public class NoCipher implements Cipher {

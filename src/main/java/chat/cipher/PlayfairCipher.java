@@ -1,3 +1,5 @@
+package chat.cipher;
+
 public class PlayfairCipher implements Cipher {
     private final String key;
     private ProcessText textProcessor = new ProcessText();

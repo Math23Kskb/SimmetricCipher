@@ -1,3 +1,5 @@
+package chat.cipher;
+
 import java.util.regex.Pattern;
 
 public class ProcessText {

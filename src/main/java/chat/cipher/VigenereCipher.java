@@ -1,3 +1,5 @@
+package chat.cipher;
+
 public class VigenereCipher implements Cipher {
     private final String key;
     private ProcessText textPocessor = new ProcessText();
