@@ -1,6 +1,7 @@
 package chat;
 
 import chat.cipher.*;
+import chat.cipher.Cipher;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -160,7 +161,15 @@ public class Client {
 
                     System.out.println("Selecionado: Monoalfabética");
 
-                    return new MonoCipher(chaveMono);
+                    try{
+                        return new MonoCipher(chaveMono);
+
+                    }
+                    catch(IllegalArgumentException e){
+                        System.out.println("Chave inválida");
+
+                    }
+
 
                 case "4":
                     System.out.print("Insira a chave da cifra Playfair: ");
@@ -172,9 +181,17 @@ public class Client {
                     }
 
                     System.out.println("Selecionado: Playfair");
-                    System.out.println(
-                            "A cifra Playfair ainda não foi implementada."
-                    );
+
+                    try{
+                        return new PlayfairCipher(chavePlayfair);
+
+                    }
+                    catch(IllegalArgumentException e){
+                        System.out.println("Chave inválida");
+
+                    }
+
+
 
                     break;
 
@@ -188,6 +205,8 @@ public class Client {
                     }
 
                     System.out.println("Selecionado: Vigenère");
+
+
 
                     return new VigenereCipher(chaveVigenere);
 
