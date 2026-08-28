@@ -210,6 +210,19 @@ public class Client {
 
                     return new VigenereCipher(chaveVigenere);
 
+                case "6":
+                    System.out.print("Insira a chave da cifra RC4: ");
+                    String seed = scanner.nextLine().trim();
+
+                    if (seed.isEmpty()) {
+                        System.out.println("A chave não pode estar vazia.");
+                        break;
+                    }
+
+                    System.out.println("Selecionado: RC4");
+
+                    //return new Rc4Cipher();
+
                 case "0":
                     return null;
 
