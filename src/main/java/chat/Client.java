@@ -221,7 +221,7 @@ public class Client {
 
                     System.out.println("Selecionado: RC4");
 
-                    //return new Rc4Cipher();
+                    return new Rc4Cipher(seed);
 
                 case "0":
                     return null;
