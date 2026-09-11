@@ -122,6 +122,7 @@ public class Client {
             System.out.println("3 - Monoalfabética");
             System.out.println("4 - Playfair");
             System.out.println("5 - Vigenère");
+            System.out.println("6 - RC4");
             System.out.println("0 - Sair");
             System.out.print("Opção: ");
 
