@@ -227,16 +227,16 @@ public class Client {
 
                 case "7":
                     System.out.print("Insira a chave da cifra DES (8 bytes): ");
-                    String seed = scanner.nextLine().trim();
+                    String seed2 = scanner.nextLine().trim();
 
-                    if (seed.isEmpty()) {
+                    if (seed2.isEmpty()) {
                         System.out.println("A chave não pode estar vazia.");
                         break;
                     }
 
                     System.out.println("Selecionado: DES");
 
-                    return new DESCipher(seed);
+                    return new DESCipher(seed2);
 
                 case "0":
                     return null;

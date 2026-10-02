@@ -1,7 +1,9 @@
+package chat.cipher;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
-public class DESCipher{
+public class DESCipher implements Cipher{
     private final long key;
     private final long[] subkeys;
 
