@@ -123,6 +123,7 @@ public class Client {
             System.out.println("4 - Playfair");
             System.out.println("5 - Vigenère");
             System.out.println("6 - RC4");
+            System.out.println("7 - DES");
             System.out.println("0 - Sair");
             System.out.print("Opção: ");
 
@@ -223,6 +224,19 @@ public class Client {
                     System.out.println("Selecionado: RC4");
 
                     return new Rc4Cipher(seed);
+
+                case "7":
+                    System.out.print("Insira a chave da cifra DES (8 bytes): ");
+                    String seed = scanner.nextLine().trim();
+
+                    if (seed.isEmpty()) {
+                        System.out.println("A chave não pode estar vazia.");
+                        break;
+                    }
+
+                    System.out.println("Selecionado: DES");
+
+                    return new DESCipher(seed);
 
                 case "0":
                     return null;
