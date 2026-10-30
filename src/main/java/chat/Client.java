@@ -124,6 +124,7 @@ public class Client {
             System.out.println("5 - Vigenère");
             System.out.println("6 - RC4");
             System.out.println("7 - DES");
+            System.out.println("8 - AES");
             System.out.println("0 - Sair");
             System.out.print("Opção: ");
 
@@ -237,7 +238,18 @@ public class Client {
                     System.out.println("Selecionado: DES");
 
                     return new DESCipher(seed2);
+                case "8":
+                    System.out.print("Insira a chave da cifra AES (16 bytes): ");
+                    String seed3 = scanner.nextLine().trim();
 
+                    if (seed3.isEmpty()) {
+                        System.out.println("A chave não pode estar vazia.");
+                        break;
+                    }
+
+                    System.out.println("Selecionado: AES");
+
+                    return new AESCipher(seed3);
                 case "0":
                     return null;
 
